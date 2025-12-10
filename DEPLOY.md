@@ -79,11 +79,24 @@ Este projeto pode ser hospedado em várias plataformas. O GitHub Pages **não su
 
 ## ⚠️ Importante para Vercel
 
-O arquivo `vercel.json` já está configurado. O Vercel precisa de algumas variáveis de ambiente para o Puppeteer funcionar:
+O arquivo `vercel.json` já está configurado. O código já está otimizado para funcionar em ambientes serverless.
 
-1. No painel do Vercel, vá em **Settings > Environment Variables**
-2. Adicione (se necessário):
-   - `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false` (se houver problemas)
+**Nota sobre Puppeteer no Vercel:**
+- O Puppeteer já está configurado com flags para funcionar no Vercel
+- Se houver problemas, você pode precisar usar `@sparticuz/chromium` (versão otimizada para serverless)
+- O timeout padrão do Vercel é 10 segundos para funções serverless, então PDFs muito grandes podem dar timeout
+
+**Para aumentar o timeout:**
+1. No `vercel.json`, adicione:
+   ```json
+   {
+     "functions": {
+       "server.js": {
+         "maxDuration": 60
+       }
+     }
+   }
+   ```
 
 ---
 
