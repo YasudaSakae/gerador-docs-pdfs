@@ -20,7 +20,7 @@ Este projeto pode ser hospedado em várias plataformas. O GitHub Pages **não su
    ```bash
    vercel
    ```
-   
+
    Ou simplesmente:
    - Acesse [vercel.com](https://vercel.com)
    - Conecte seu repositório do GitHub
