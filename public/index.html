@@ -359,21 +359,17 @@
                     body: JSON.stringify({ filename: selectedFile })
                 });
 
-                if (response.ok && response.headers.get('content-type') === 'application/pdf') {
-                    // PDF foi retornado diretamente
-                    const blob = await response.blob();
-                    const pdfUrl = URL.createObjectURL(blob);
+                const data = await response.json();
 
-                    // Abrir PDF em nova aba
-                    window.open(pdfUrl, '_blank');
+                if (response.ok) {
+                    showStatus(`✅ ${data.message}`, 'success');
 
-                    // Limpar o URL do blob após um tempo para liberar memória
-                    setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
-
-                    showStatus('✅ PDF gerado com sucesso!', 'success');
+                    // Abrir PDF em nova aba após 500ms (dar tempo para o arquivo ser salvo)
+                    setTimeout(() => {
+                        const pdfUrl = `/api/pdf/${encodeURIComponent(data.filename)}`;
+                        window.open(pdfUrl, '_blank');
+                    }, 500);
                 } else {
-                    // Erro retornado como JSON
-                    const data = await response.json();
                     showStatus(`❌ Erro: ${data.error || data.message}`, 'error');
                 }
             } catch (error) {

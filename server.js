@@ -9,22 +9,13 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Middleware para garantir JSON apenas em rotas que não retornam PDF
 app.use('/api', (req, res, next) => {
-    // Não forçar JSON em rotas que retornam PDF
-    if (req.path === '/generate' && req.method === 'POST') {
-        return next();
-    }
     res.setHeader('Content-Type', 'application/json');
     next();
 });
 
 
-// No Vercel, usar /tmp (único diretório writable). Localmente, usar a pasta do projeto
-const isVercel = process.env.VERCEL === '1';
-const contentDir = isVercel
-    ? path.join('/tmp', 'content')
-    : path.join(__dirname, 'content');
+const contentDir = path.join(__dirname, 'content');
 fs.ensureDirSync(contentDir);
 
 const storage = multer.diskStorage({
@@ -52,10 +43,7 @@ const upload = multer({
 
 app.get('/api/files', async (req, res) => {
     try {
-        const isVercel = process.env.VERCEL === '1';
-        const contentDir = isVercel
-            ? path.join('/tmp', 'content')
-            : path.join(__dirname, 'content');
+        const contentDir = path.join(__dirname, 'content');
         await fs.ensureDir(contentDir);
 
         const files = await fs.readdir(contentDir);
@@ -124,6 +112,27 @@ app.post('/api/upload', (req, res) => {
     }
 });
 
+app.get('/api/pdf/:filename', (req, res) => {
+    try {
+        const pdfFilename = req.params.filename;
+        const pdfPath = path.join(__dirname, 'output', pdfFilename);
+
+        if (!fs.existsSync(pdfPath)) {
+            return res.status(404).json({ error: 'PDF não encontrado' });
+        }
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${pdfFilename}"`);
+        res.sendFile(pdfPath);
+    } catch (error) {
+        console.error('Erro ao servir PDF:', error);
+        res.status(500).json({
+            error: 'Erro ao servir PDF',
+            message: error.message
+        });
+    }
+});
+
 app.post('/api/generate', async (req, res) => {
     try {
         if (!generatePDF) {
@@ -144,17 +153,7 @@ app.post('/api/generate', async (req, res) => {
 
         const result = await generatePDF(filename, pdfName);
 
-        // Retornar o PDF diretamente como resposta binária
-        if (result.success && result.pdfBuffer) {
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `inline; filename="${pdfName}"`);
-            res.send(result.pdfBuffer);
-        } else {
-            res.status(500).json({
-                error: 'Erro ao gerar PDF',
-                message: 'PDF não foi gerado corretamente'
-            });
-        }
+        res.json(result);
     } catch (error) {
         console.error('Erro ao gerar PDF:', error);
         res.status(500).json({
