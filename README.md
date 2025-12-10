@@ -56,16 +56,4 @@ gerador-docs-pdf/
 - ✅ Lista automática de arquivos .md
 - ✅ Geração de PDF com formatação profissional
 - ✅ Suporte a Markdown completo (tabelas, código, etc.)
-- ✅ **Abre PDF automaticamente** em nova aba após geração
-
-## 🚀 Deploy
-
-Este projeto pode ser hospedado em várias plataformas. **GitHub Pages não funciona** porque não suporta Node.js.
-
-**Opções recomendadas:**
-- **Vercel** (gratuito, mais fácil) - Veja [DEPLOY.md](./DEPLOY.md)
-- **Railway** (gratuito)
-- **Render** (gratuito)
-
-Consulte o arquivo [DEPLOY.md](./DEPLOY.md) para instruções detalhadas de deploy.
 
