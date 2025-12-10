@@ -1,0 +1,29 @@
+{
+  "name": "gerador-docs-pdf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "./start.sh",
+    "start:direct": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YasudaSakae/gerador-docs-pdfs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YasudaSakae/gerador-docs-pdfs/issues"
+  },
+  "homepage": "https://github.com/YasudaSakae/gerador-docs-pdfs#readme",
+  "dependencies": {
+    "express": "^4.22.1",
+    "fs-extra": "^11.3.2",
+    "marked": "^17.0.1",
+    "multer": "^2.0.2",
+    "puppeteer": "^24.32.1"
+  }
+}

@@ -1,0 +1,36 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos gerados (opcional - descomente se não quiser versionar PDFs)
+# output/*.pdf
+
+# Logs
+logs
+*.log
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.*.local
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+

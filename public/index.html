@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de PDFs - Documentação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .file-list {
+            margin-bottom: 30px;
+        }
+
+        .file-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            border-color: #667eea;
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .file-item.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .file-original {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            display: block;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            display: block;
+        }
+
+        .status.loading {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #1e40af;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .upload-section {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.2s;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f1f5f9;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            color: #667eea;
+        }
+
+        .upload-text {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .upload-hint {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 30px 0;
+        }
+
+        .section-title {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Gerador de PDFs</h1>
+        <p class="subtitle">Faça upload ou selecione um arquivo Markdown para gerar o PDF</p>
+
+        <!-- Seção de Upload -->
+        <div class="upload-section" id="uploadSection">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <div class="upload-text">Arraste e solte um arquivo .md aqui</div>
+            <div class="upload-hint">ou clique no botão abaixo</div>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" class="file-input" accept=".md" />
+                <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">
+                    Escolher arquivo
+                </button>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-title">Arquivos disponíveis</div>
+        <div class="file-list" id="fileList">
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <p>Carregando arquivos...</p>
+            </div>
+        </div>
+
+        <button class="btn" id="generateBtn" disabled>
+            Gerar PDF
+        </button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let files = [];
+
+        // Carregar lista de arquivos
+        async function loadFiles() {
+            try {
+                const response = await fetch('/api/files');
+                const data = await response.json();
+                files = data.files;
+                renderFiles();
+            } catch (error) {
+                showStatus('Erro ao carregar arquivos: ' + error.message, 'error');
+            }
+        }
+
+        // Renderizar lista de arquivos
+        function renderFiles() {
+            const fileList = document.getElementById('fileList');
+
+            if (files.length === 0) {
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>Nenhum arquivo .md encontrado na pasta 'content/'</p>
+                        <p style="font-size: 12px; margin-top: 8px;">Adicione arquivos .md na pasta content para começar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            fileList.innerHTML = files.map(file => `
+                <div class="file-item" data-filename="${file.name}">
+                    <div>
+                        <div class="file-name">${file.displayName}</div>
+                        <div class="file-original">${file.name}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Adicionar event listeners
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.file-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    selectedFile = item.dataset.filename;
+                    document.getElementById('generateBtn').disabled = false;
+                });
+            });
+        }
+
+        // Gerar PDF
+        async function generatePDF() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            showStatus('Gerando PDF...', 'loading');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename: selectedFile })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus(`✅ ${data.message}`, 'success');
+
+                    // Abrir PDF em nova aba após 500ms (dar tempo para o arquivo ser salvo)
+                    setTimeout(() => {
+                        const pdfUrl = `/api/pdf/${encodeURIComponent(data.filename)}`;
+                        window.open(pdfUrl, '_blank');
+                    }, 500);
+                } else {
+                    showStatus(`❌ Erro: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Erro ao gerar PDF: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Mostrar status
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+
+            if (type === 'loading') {
+                status.innerHTML = `<span class="loading-spinner"></span>${message}`;
+            }
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Upload de arquivo
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showStatus('Enviando arquivo...', 'loading');
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Resposta não é JSON:', text.substring(0, 200));
+                    return showStatus('❌ Erro: O servidor retornou uma resposta inválida. Verifique o console do servidor.', 'error');
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus(`✅ ${data.message}`, 'success');
+                    // Recarregar lista de arquivos
+                    await loadFiles();
+                } else {
+                    showStatus(`❌ Erro: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro completo:', error);
+                showStatus('❌ Erro ao fazer upload: ' + error.message, 'error');
+            }
+        }
+
+        // Event listeners para upload
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadFile(e.target.files[0]);
+                e.target.value = ''; // Reset input
+            }
+        });
+
+        // Drag and drop
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.md')) {
+                    uploadFile(file);
+                } else {
+                    showStatus('❌ Apenas arquivos .md são permitidos', 'error');
+                }
+            }
+        });
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', generatePDF);
+
+        // Carregar arquivos ao iniciar
+        loadFiles();
+    </script>
+</body>
+</html>
+
