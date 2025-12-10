@@ -187,19 +187,13 @@ app.use((req, res) => {
     }
 });
 
-// Exportar para Vercel (serverless)
-module.exports = app;
-
-// Iniciar servidor local apenas se não estiver no Vercel
-if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-        console.log(`📁 Certifique-se de que os arquivos .md estão na pasta 'content/'`);
-        console.log(`\n📋 Rotas registradas:`);
-        console.log(`   GET  /api/files`);
-        console.log(`   POST /api/upload`);
-        console.log(`   POST /api/generate`);
-        console.log(`\n⚠️  Se você fez mudanças no código, certifique-se de reiniciar o servidor!`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    console.log(`📁 Certifique-se de que os arquivos .md estão na pasta 'content/'`);
+    console.log(`\n📋 Rotas registradas:`);
+    console.log(`   GET  /api/files`);
+    console.log(`   POST /api/upload`);
+    console.log(`   POST /api/generate`);
+    console.log(`\n⚠️  Se você fez mudanças no código, certifique-se de reiniciar o servidor!`);
+});
 

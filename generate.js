@@ -19,20 +19,7 @@ async function generatePDF(inputFilename, outputFilename) {
             .replace('{{content}}', htmlBody)
             .replace('{{stylePath}}', stylePath);
 
-        // Configuração para funcionar em ambientes serverless (Vercel, etc.)
-        const browser = await puppeteer.launch({
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--single-process',
-                '--disable-gpu'
-            ],
-            headless: true
-        });
+        const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         await page.setContent(finalHtml, { waitUntil: 'networkidle0' });

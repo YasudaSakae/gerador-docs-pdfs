@@ -29,9 +29,6 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Vercel
-.vercel
-
 # Arquivos temporários
 tmp/
 temp/
