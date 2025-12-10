@@ -1,18 +1,25 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
 const path = require('path');
-const { marked } = require('marked');
 
 async function generatePDF(inputFilename, outputFilename) {
     try {
-        const mdPath = path.join(__dirname, 'content', inputFilename);
+        // No Vercel, usar /tmp (único diretório writable). Localmente, usar a pasta do projeto
+        const isVercel = process.env.VERCEL === '1';
+        const baseDir = isVercel ? '/tmp' : __dirname;
+
+        const mdPath = path.join(baseDir, 'content', inputFilename);
         const templatePath = path.join(__dirname, 'template.html');
         const stylePath = path.join(__dirname, 'styles', 'style.css');
-        const outputPath = path.join(__dirname, 'output', outputFilename);
+
+        // Garantir que o diretório content existe (não precisamos mais de output)
+        await fs.ensureDir(path.join(baseDir, 'content'));
 
         const markdownContent = await fs.readFile(mdPath, 'utf-8');
         const templateHtml = await fs.readFile(templatePath, 'utf-8');
 
+        // Importar marked dinamicamente (é um módulo ES)
+        const { marked } = await import('marked');
         const htmlBody = marked.parse(markdownContent);
 
         const finalHtml = templateHtml
@@ -48,8 +55,8 @@ async function generatePDF(inputFilename, outputFilename) {
             year: 'numeric'
         });
 
-        await page.pdf({
-            path: outputPath,
+        // Gerar PDF em buffer (memória) ao invés de salvar em arquivo
+        const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
             displayHeaderFooter: true,
@@ -80,7 +87,14 @@ async function generatePDF(inputFilename, outputFilename) {
 
         await browser.close();
         console.log(`✅ PDF gerado com sucesso: ${outputFilename}`);
-        return { success: true, message: `PDF gerado com sucesso: ${outputFilename}`, filename: outputFilename };
+
+        // Retornar o buffer do PDF ao invés de salvar em arquivo
+        return {
+            success: true,
+            message: `PDF gerado com sucesso: ${outputFilename}`,
+            filename: outputFilename,
+            pdfBuffer: pdfBuffer
+        };
 
     } catch (error) {
         console.error('Erro ao gerar PDF:', error);
@@ -88,6 +102,6 @@ async function generatePDF(inputFilename, outputFilename) {
     }
 }
 
-fs.ensureDirSync(path.join(__dirname, 'output'));
+// Não precisamos mais criar diretório output - PDFs são gerados em memória
 
 module.exports = { generatePDF };
